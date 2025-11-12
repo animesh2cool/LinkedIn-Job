@@ -8,4 +8,5 @@ sqlalchemy
 apscheduler
 torch
 jinja2
+openai
 python-multipart
