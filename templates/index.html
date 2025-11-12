@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Job Summary Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        * { font-family: 'Inter', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 75%, #4facfe 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2.5rem 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .header-content { position: relative; z-index: 1; }
+        .logo-icon { width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 1rem; }
+        .form-section { padding: 2.5rem 2rem; background: linear-gradient(to bottom, #fafafa 0%, #ffffff 100%); }
+        .section-title { font-weight: 700; font-size: 1.5rem; color: #1a202c; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+        .section-badge { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 32px; height: 32px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; }
+        .form-label { font-weight: 600; color: #4a5568; font-size: 0.875rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .form-select, .form-control { border: 2px solid #e2e8f0; border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.9375rem; transition: all 0.3s ease; background-color: white; }
+        .form-select:focus, .form-control:focus { border-color: #667eea; box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1); }
+        .form-select:hover, .form-control:hover { border-color: #cbd5e0; }
+        .btn-generate { background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); border: none; padding: 1rem 2.5rem; border-radius: 14px; font-weight: 700; font-size: 1.0625rem; color: white; transition: all 0.3s ease; box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4); }
+        .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(102, 126, 234, 0.5); }
+        .btn-generate:active { transform: translateY(0); }
+        .posts-section { padding: 2.5rem 2rem; background: white; }
+        .post-card { background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%); border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.25rem; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
+        .post-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12); border-color: #cbd5e0; }
+        .post-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.125rem; flex-shrink: 0; }
+        .post-content { color: #2d3748; line-height: 1.7; font-size: 0.9375rem; }
+        .post-image { width: 100px; height: 100px; object-fit: cover; border-radius: 12px; border: 2px solid #e2e8f0; transition: all 0.3s ease; cursor: pointer; }
+        .post-image:hover { transform: scale(1.05); border-color: #667eea; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); }
+        .post-timestamp { color: #718096; font-size: 0.8125rem; display: flex; align-items: center; gap: 0.375rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e2e8f0; }
+        .empty-state { text-align: center; padding: 4rem 2rem; }
+        .empty-icon { width: 80px; height: 80px; background: linear-gradient(135deg, #f0f4ff 0%, #e9d5ff 100%); border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #667eea; margin-bottom: 1.25rem; }
+        .color-purple { color: #667eea; }
+        .color-pink { color: #f093fb; }
+        .color-blue { color: #4facfe; }
+
+        /* Modal Styles */
+        .modal-img {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-card">
+            <!-- Header -->
+            <div class="header-section">
+                <div class="header-content text-center">
+                    <div class="logo-icon mx-auto">
+                        <i class="bi bi-linkedin"></i>
+                    </div>
+                    <h1 class="mb-2 fw-bold" style="font-size: 2.25rem;">LinkedIn Job Post Summarizer</h1>
+                    <p class="mb-0 opacity-90" style="font-size: 1rem;">Generate AI-powered summaries of job posts instantly</p>
+                </div>
+            </div>
+
+            <!-- Form Section -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <span class="section-badge">1</span>
+                    Configure Your Search
+                </h2>
+                
+                <form method="post" action="/scrape">
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                <i class="bi bi-building color-purple"></i>
+                                Company Name
+                            </label>
+                            <select name="company" class="form-select">
+                                <option value="Cognizant">Cognizant</option>
+                                <option value="TCS">TCS</option>
+                                <option value="Infosys">Infosys</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                <i class="bi bi-display color-pink"></i>
+                                Interview Mode
+                            </label>
+                            <select name="mode" class="form-select">
+                                <option value="Walk-in">Walk-in</option>
+                                <option value="Online">Online</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                <i class="bi bi-geo-alt color-blue"></i>
+                                Location
+                            </label>
+                            <select name="location" class="form-select">
+                                <option value="Kolkata">Kolkata</option>
+                                <option value="Bangalore">Bangalore</option>
+                                <option value="Pune">Pune</option>
+                                <option value="Hyderabad">Hyderabad</option>
+                                <option value="Noida">Noida</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-generate">
+                            <i class="bi bi-lightning-charge-fill me-2"></i>
+                            Generate Summary Post
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Posts Section -->
+            <div class="posts-section">
+                <h2 class="section-title">
+                    <span class="section-badge">2</span>
+                    Latest Summarized Posts
+                </h2>
+                
+                {% if posts %}
+                    {% for post in posts %}
+                        <div class="post-card">
+                            <div class="d-flex gap-3">
+                                <div class="post-avatar">
+                                    <i class="bi bi-linkedin"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="post-content mb-3">{{ post.summary }}</div>
+                                    
+                                    {% if post.image_paths %}
+                                        <div class="d-flex flex-wrap gap-2 mb-2">
+                                            {% for img in post.image_paths.split(',') %}
+                                                <img src="/static/Image/{{ img }}" alt="Post Image" class="post-image" onclick="showImage(this.src)">
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="post-timestamp">
+                                        <i class="bi bi-clock"></i>
+                                        Scraped at: {{ post.scraped_at }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon mx-auto">
+                            <i class="bi bi-file-earmark-text"></i>
+                        </div>
+                        <h3 class="fw-bold mb-2" style="color: #2d3748; font-size: 1.375rem;">No posts yet</h3>
+                        <p class="text-muted mb-0">Select your preferences above and generate your first summary!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0">
+          <div class="modal-body p-0">
+            <img id="modalImage" class="modal-img rounded" src="" alt="Enlarged Image">
+          </div>
+          <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Show clicked image in modal
+        function showImage(src) {
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = src;
+            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            modal.show();
+        }
+    </script>
+</body>
+</html>
