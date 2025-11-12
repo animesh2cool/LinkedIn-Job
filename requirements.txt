@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+playwright
+beautifulsoup4
+requests
+SQLModel
+sqlalchemy
+apscheduler
+torch
+jinja2
+python-multipart
